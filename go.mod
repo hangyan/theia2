@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	antrea.io/antrea v1.6.0
+	github.com/ClickHouse/clickhouse-go v1.5.4
 	github.com/containernetworking/plugins v0.8.7
 	github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd
 	github.com/sirupsen/logrus v1.8.1
@@ -14,6 +15,7 @@ require (
 	k8s.io/api v0.21.2
 	k8s.io/apimachinery v0.21.2
 	k8s.io/client-go v0.21.2
+	k8s.io/klog/v2 v2.8.0
 	k8s.io/kube-aggregator v0.21.0
 	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
 )
@@ -34,6 +36,7 @@ require (
 	github.com/cenkalti/rpc2 v0.0.0-20180727162946-9642ea02d0aa // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cheggaaa/pb/v3 v3.0.8 // indirect
+	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58 // indirect
 	github.com/containerd/cgroups v0.0.0-20200531161412-0dbf7f05ba59 // indirect
 	github.com/containernetworking/cni v0.8.1 // indirect
 	github.com/contiv/libovsdb v0.0.0-20170227191248-d0061a53e358 // indirect
@@ -113,7 +116,6 @@ require (
 	k8s.io/apiextensions-apiserver v0.21.2 // indirect
 	k8s.io/apiserver v0.21.2 // indirect
 	k8s.io/component-base v0.21.2 // indirect
-	k8s.io/klog/v2 v2.8.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20210305164622-f622666832c1 // indirect
 	k8s.io/kubectl v0.21.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.19 // indirect
