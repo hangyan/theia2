@@ -341,7 +341,7 @@ function run_codecov { (set -e
 function deliver_antrea {
     wget -c  https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/antrea.yml -O  ${GIT_CHECKOUT_DIR}/build/yamls/antrea.yml
     sed -i -e "s/#  FlowExporter: false/  FlowExporter: true/g" ${GIT_CHECKOUT_DIR}/build/yamls/antrea.yml
-    antrea_yml = "antrea.yml"
+    antrea_yml="antrea.yml"
     # Enable verbose log for troubleshooting.
     sed -i "s/--v=0/--v=4/g" $GIT_CHECKOUT_DIR/build/yamls/$antrea_yml
     control_plane_ip="$(kubectl get nodes -o wide --no-headers=true | awk -v role="$CONTROL_PLANE_NODE_ROLE" '$3 ~ role {print $6}')"
