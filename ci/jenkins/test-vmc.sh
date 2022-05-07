@@ -411,10 +411,10 @@ function run_e2e {
         rm -rf ${GIT_CHECKOUT_DIR}/e2e-coverage
         mkdir -p ${GIT_CHECKOUT_DIR}/e2e-coverage
         # HACK: see https://github.com/antrea-io/antrea/issues/2292
-        go test -v -timeout=100m antrea.io/theia/test/e2e --logs-export-dir ${GIT_CHECKOUT_DIR}/theia-test-logs --prometheus --coverage --coverage-dir ${GIT_CHECKOUT_DIR}/e2e-coverage --provider remote --remote.sshconfig "${CLUSTER_SSHCONFIG}" --remote.kubeconfig "${CLUSTER_KUBECONFIG}"
+        go test -v -timeout=100m antrea.io/theia/test/e2e --logs-export-dir ${GIT_CHECKOUT_DIR}/theia-test-logs  --coverage --coverage-dir ${GIT_CHECKOUT_DIR}/e2e-coverage --provider remote --remote.sshconfig "${CLUSTER_SSHCONFIG}" --remote.kubeconfig "${CLUSTER_KUBECONFIG}"
     else
         # HACK: see https://github.com/antrea-io/antrea/issues/2292
-        go test -v -timeout=100m antrea.io/theia/test/e2e --logs-export-dir ${GIT_CHECKOUT_DIR}/theia-test-logs --prometheus --provider remote --remote.sshconfig "${CLUSTER_SSHCONFIG}" --remote.kubeconfig "${CLUSTER_KUBECONFIG}"
+        go test -v -timeout=100m antrea.io/theia/test/e2e --logs-export-dir ${GIT_CHECKOUT_DIR}/theia-test-logs --provider remote --remote.sshconfig "${CLUSTER_SSHCONFIG}" --remote.kubeconfig "${CLUSTER_KUBECONFIG}"
     fi
 
     test_rc=$?
