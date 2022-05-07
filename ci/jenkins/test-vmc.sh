@@ -379,6 +379,7 @@ function run_e2e {
     export GOPATH=$WORKDIR/go
     export GOROOT=/usr/local/go
     export GOCACHE=$WORKDIR/.cache/go-build
+    export GOMODCACHE=$WORKDIR/.cache/go-mod-cache
     export PATH=$GOROOT/bin:$PATH
     export KUBECONFIG=$GIT_CHECKOUT_DIR/jenkins/out/kubeconfig
 
@@ -405,7 +406,7 @@ function run_e2e {
     set +e
     mkdir -p ${GIT_CHECKOUT_DIR}/theia-test-logs
     go version
-    go mod tidy -go=1.16 && go mod tidy -go=1.17
+    go mod tidy -compat=1.17
     if [[ "$COVERAGE" == true ]]; then
         rm -rf ${GIT_CHECKOUT_DIR}/e2e-coverage
         mkdir -p ${GIT_CHECKOUT_DIR}/e2e-coverage
