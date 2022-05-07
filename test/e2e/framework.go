@@ -61,6 +61,7 @@ const (
 	flowAggregatorYML        string = "flow-aggregator.yml"
 	flowAggregatorCovYML     string = "flow-aggregator-coverage.yml"
 	flowVisibilityYML        string = "flow-visibility.yml"
+	clickhouseOperatorYML    string = "clickhouse-operator-install-bundle.yml"
 	flowVisibilityCHPodName  string = "chi-clickhouse-clickhouse-0-0-0"
 
 	agnhostImage  = "k8s.gcr.io/e2e-test-images/agnhost:2.29"
@@ -1066,7 +1067,7 @@ func (data *TestData) deployFlowVisibilityClickHouse() (*PodIPs, error) {
 	}
 
 	if err := wait.Poll(2*time.Second, 10*time.Second, func() (bool, error) {
-		rc, stdout, stderr, err := data.provider.RunCommandOnNode(controlPlaneNodeName(), fmt.Sprintf("kubectl apply -f %s", flowVisibilityYML))
+		rc, stdout, stderr, err := data.provider.RunCommandOnNode(controlPlaneNodeName(), fmt.Sprintf("kubectl apply -f %s -f %s", clickhouseOperatorYML, flowVisibilityYML))
 		log.Infof("DEBUG: stdout: %s, stderr: %s, rc: %v, err: %+v", stdout, stderr, rc, err)
 		if err != nil || rc != 0 {
 			// ClickHouseInstallation CRD from ClickHouse Operator install bundle applied soon before
