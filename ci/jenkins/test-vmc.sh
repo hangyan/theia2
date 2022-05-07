@@ -344,7 +344,13 @@ function deliver_antrea {
     antrea_yml="antrea.yml"
     # Enable verbose log for troubleshooting.
     sed -i "s/--v=0/--v=4/g" $GIT_CHECKOUT_DIR/build/yamls/$antrea_yml
+
+    wget -c https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/flow-aggregator.yml -O ${GIT_CHECKOUT_DIR}/build/yamls/flow-aggregator.yml
+
+
     control_plane_ip="$(kubectl get nodes -o wide --no-headers=true | awk -v role="$CONTROL_PLANE_NODE_ROLE" '$3 ~ role {print $6}')"
+
+
     ${SCP_WITH_ANTREA_CI_KEY} $GIT_CHECKOUT_DIR/build/yamls/*.yml capv@${control_plane_ip}:~
 
 }
