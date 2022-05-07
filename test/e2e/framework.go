@@ -1067,7 +1067,7 @@ func (data *TestData) deployFlowVisibilityClickHouse() (*PodIPs, error) {
 
 	if err := wait.Poll(2*time.Second, 10*time.Second, func() (bool, error) {
 		rc, stdout, stderr, err := data.provider.RunCommandOnNode(controlPlaneNodeName(), fmt.Sprintf("kubectl apply -f %s", flowVisibilityYML))
-		log.Infof("DEBUG: stdout: %s", stdout)
+		log.Infof("DEBUG: stdout: %s, stderr: %s, rc: %v, err: %+v", stdout, stderr, rc, err)
 		if err != nil || rc != 0 {
 			// ClickHouseInstallation CRD from ClickHouse Operator install bundle applied soon before
 			// applying CR. Sometimes apiserver validation fails to recognize resource of
