@@ -405,9 +405,7 @@ function run_e2e {
     set +e
     mkdir -p ${GIT_CHECKOUT_DIR}/theia-test-logs
     go version
-    go get github.com/vmware/go-ipfix/pkg/collector@v0.5.12
-    go get antrea.io/antrea/pkg/flowaggregator/clickhouseclient@v1.6.0
-    go mod tidy -compat=1.17
+    go mod tidy -go=1.16 && go mod tidy -go=1.17
     if [[ "$COVERAGE" == true ]]; then
         rm -rf ${GIT_CHECKOUT_DIR}/e2e-coverage
         mkdir -p ${GIT_CHECKOUT_DIR}/e2e-coverage
