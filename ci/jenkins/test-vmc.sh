@@ -351,6 +351,7 @@ function deliver_antrea {
     wget -c https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/flow-aggregator.yml -O ${GIT_CHECKOUT_DIR}/build/yamls/flow-aggregator.yml
     sed -i '215s/.*/      enable: true/' ${GIT_CHECKOUT_DIR}/build/yamls/flow-aggregator.yml
     sed -i -e "s/      #podLabels: false/      podLabels: true/g" ${GIT_CHECKOUT_DIR}/build/yamls/flow-aggregator.yml
+    sed -i -e "s/      #commitInterval: \"8s\"/      commitInterval: \"1s\"/g" ${GIT_CHECKOUT_DIR}/build/yamls/flow-aggregator.yml
 
     control_plane_ip="$(kubectl get nodes -o wide --no-headers=true | awk -v role="$CONTROL_PLANE_NODE_ROLE" '$3 ~ role {print $6}')"
 
