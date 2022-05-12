@@ -832,7 +832,7 @@ func getClickHouseOutput(t *testing.T, data *TestData, srcIP, dstIP, srcPort str
 	}
 	// ClickHouse output expected to be checked after IPFIX collector.
 	// Waiting additional 4x commit interval to be adequate for 3 commit attempts.
-	timeout := (exporterActiveFlowExportTimeout + aggregatorActiveFlowRecordTimeout*2 + aggregatorClickHouseCommitInterval*4) * 30
+	timeout := (exporterActiveFlowExportTimeout + aggregatorActiveFlowRecordTimeout*2 + aggregatorClickHouseCommitInterval*4) * 2
 	err := wait.PollImmediate(500*time.Millisecond, timeout, func() (bool, error) {
 		queryOutput, _, err := data.RunCommandFromPod(flowVisibilityNamespace, clickHousePodName, "clickhouse", cmd)
 		if err != nil {

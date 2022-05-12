@@ -280,6 +280,29 @@ function setup_cluster() {
 }
 
 
+function copy_image {
+  filename=$1
+  image=$2
+  IP=$3
+  version=$4
+  need_cleanup=$5
+  ${SCP_WITH_ANTREA_CI_KEY} $filename capv@${IP}:/home/capv
+  if [ $TEST_OS == 'centos-7' ]; then
+      ${SSH_WITH_ANTREA_CI_KEY} -n capv@${IP} "sudo chmod 777 /run/containerd/containerd.sock"
+      if [[ $need_cleanup == 'true' ]]; then
+          ${SSH_WITH_ANTREA_CI_KEY} -n capv@${IP} "sudo crictl images | grep $image | awk '{print \$3}' | uniq | xargs -r crictl rmi"
+      fi
+      ${SSH_WITH_ANTREA_CI_KEY} -n capv@${IP} "ctr -n=k8s.io images import /home/capv/$filename ; ctr -n=k8s.io images tag $image:$version $image:latest --force"
+  else
+      if [[ $need_cleanup == 'true' ]]; then
+          ${SSH_WITH_ANTREA_CI_KEY} -n capv@${IP} "sudo crictl images | grep $image | awk '{print \$3}' | uniq | xargs -r crictl rmi"
+      fi
+      ${SSH_WITH_ANTREA_CI_KEY} -n capv@${IP} "sudo ctr -n=k8s.io images import /home/capv/$filename ; sudo ctr -n=k8s.io images tag $image:$version $image:latest --force"
+  fi
+  ${SSH_WITH_ANTREA_CI_KEY} -n capv@${IP} "sudo crictl images | grep '<none>' | awk '{print \$3}' | xargs -r crictl rmi"
+}
+
+
 
 function deliver_antrea {
     wget -c  https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/antrea.yml -O  ${GIT_CHECKOUT_DIR}/build/yamls/antrea.yml
@@ -302,6 +325,33 @@ function deliver_antrea {
 
 
     ${SCP_WITH_ANTREA_CI_KEY} $GIT_CHECKOUT_DIR/build/yamls/*.yml capv@${control_plane_ip}:~
+
+
+
+
+    # copy images
+    docker pull projects.registry.vmware.com/antrea/antrea-ubuntu:latest
+    docker pull projects.registry.vmware.com/antrea/flow-aggregator:latest
+    docker save -o antrea-ubuntu.tar projects.registry.vmware.com/antrea/antrea-ubuntu:latest
+    docker save -o flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator:latest
+
+    # not sure the exact image tag, so read from yaml
+    while read -r line; do
+        image=$(cut -d ':' -f2- <<< "$line")
+        docker pull $image
+        image_name=$(echo $image |  awk -F ":" '{print $1}' | awk -F "/" '{print $3}')
+        docke save -o $image_name.tar $image
+    done < <(grep '^1' info.txt)
+
+    IPs=($(kubectl get nodes -o wide --no-headers=true | awk '{print $6}' | xargs))
+    for i in "${!IPs[@]}"
+    do
+        ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R ${IPs[$i]}
+        copy_image antrea-ubuntu.tar projects.registry.vmware.com/antrea/antrea-ubuntu ${IPs[$i]} ${DOCKER_IMG_VERSION} true
+        copy_image flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator ${IPs[$i]} ${DOCKER_IMG_VERSION}  true
+        copy_image theia-cilckhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} ${DOCKER_IMG_VERSION} true
+        copy_image theia-metrics-exporter.tar projects.registry.vmware.com/antrea/theia-metrics-exportor  ${IPs[$i]} ${DOCKER_IMG_VERSION} true
+    done
 
 }
 
@@ -357,23 +407,6 @@ function run_e2e {
 
     tar -zcf ${GIT_CHECKOUT_DIR}/theia-test-logs.tar.gz ${GIT_CHECKOUT_DIR}/theia-test-logs
 
-}
-
-function collect_coverage() {
-        antrea_controller_pod_name="$(kubectl get pods --selector=app=antrea,component=antrea-controller -n kube-system --no-headers=true | awk '{ print $1 }')"
-        controller_pid="$(kubectl exec -i $antrea_controller_pod_name -n kube-system -- pgrep antrea)"
-        kubectl exec -i $antrea_controller_pod_name -n kube-system -- kill -SIGINT $controller_pid
-        timestamp=$(date +%Y%m%d%H%M%S)
-        kubectl cp kube-system/$antrea_controller_pod_name:antrea-controller.cov.out ${GIT_CHECKOUT_DIR}/conformance-coverage/$antrea_controller_pod_name-$timestamp
-
-        antrea_agent_pod_names="$(kubectl get pods --selector=app=antrea,component=antrea-agent -n kube-system --no-headers=true | awk '{ print $1 }')"
-        for agent in ${antrea_agent_pod_names}
-        do
-            agent_pid="$(kubectl exec -i $agent -n kube-system -- pgrep antrea)"
-            kubectl exec -i $agent -c antrea-agent -n kube-system -- kill -SIGINT $agent_pid
-            timestamp=$(date +%Y%m%d%H%M%S)
-            kubectl cp kube-system/$agent:antrea-agent.cov.out -c antrea-agent ${GIT_CHECKOUT_DIR}/conformance-coverage/$agent-$timestamp
-        done
 }
 
 function cleanup_cluster() {
