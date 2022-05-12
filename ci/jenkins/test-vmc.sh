@@ -349,7 +349,7 @@ function deliver_antrea {
         ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R ${IPs[$i]}
         copy_image antrea-ubuntu.tar projects.registry.vmware.com/antrea/antrea-ubuntu ${IPs[$i]} latest true
         copy_image flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator ${IPs[$i]} latest  true
-        copy_image theia-cilckhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} latest true
+        copy_image theia-clickhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} latest true
         copy_image theia-metrics-exporter.tar projects.registry.vmware.com/antrea/theia-metrics-exportor  ${IPs[$i]} latest true
     done
 
