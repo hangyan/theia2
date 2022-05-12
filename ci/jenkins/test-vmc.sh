@@ -341,16 +341,16 @@ function deliver_antrea {
         docker pull $image
         image_name=$(echo $image |  awk -F ":" '{print $1}' | awk -F "/" '{print $3}')
         docke save -o $image_name.tar $image
-    done < <(grep '^1' info.txt)
+    done < <(grep "image:" ${GIT_CHECKOUT_DIR}/build/yamls/clickhouse-operator-install-bundle.yml)
 
     IPs=($(kubectl get nodes -o wide --no-headers=true | awk '{print $6}' | xargs))
     for i in "${!IPs[@]}"
     do
         ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R ${IPs[$i]}
-        copy_image antrea-ubuntu.tar projects.registry.vmware.com/antrea/antrea-ubuntu ${IPs[$i]} ${DOCKER_IMG_VERSION} true
-        copy_image flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator ${IPs[$i]} ${DOCKER_IMG_VERSION}  true
-        copy_image theia-cilckhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} ${DOCKER_IMG_VERSION} true
-        copy_image theia-metrics-exporter.tar projects.registry.vmware.com/antrea/theia-metrics-exportor  ${IPs[$i]} ${DOCKER_IMG_VERSION} true
+        copy_image antrea-ubuntu.tar projects.registry.vmware.com/antrea/antrea-ubuntu ${IPs[$i]} latest true
+        copy_image flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator ${IPs[$i]} latest  true
+        copy_image theia-cilckhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} latest true
+        copy_image theia-metrics-exporter.tar projects.registry.vmware.com/antrea/theia-metrics-exportor  ${IPs[$i]} latest true
     done
 
 }
