@@ -340,7 +340,7 @@ function deliver_antrea {
         image=$(cut -d ':' -f2- <<< "$line")
         docker pull $image
         image_name=$(echo $image |  awk -F ":" '{print $1}' | awk -F "/" '{print $3}')
-        docke save -o $image_name.tar $image
+        docker save -o $image_name.tar $image
     done < <(grep "image:" ${GIT_CHECKOUT_DIR}/build/yamls/clickhouse-operator-install-bundle.yml)
 
     IPs=($(kubectl get nodes -o wide --no-headers=true | awk '{print $6}' | xargs))
