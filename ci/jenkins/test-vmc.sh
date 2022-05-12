@@ -336,10 +336,13 @@ function deliver_antrea {
     docker save -o flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator:latest
 
     # not sure the exact image tag, so read from yaml
+    # and we assume the image tag is the same for all images in this yaml
+    image_tag="latest"
     while read -r line; do
         image=$(cut -d ':' -f2- <<< "$line")
         docker pull $image
         image_name=$(echo $image |  awk -F ":" '{print $1}' | awk -F "/" '{print $3}')
+        image_tag=$(echo $image | awk -F ":" '{print $2}')
         docker save -o $image_name.tar $image
     done < <(grep "image:" ${GIT_CHECKOUT_DIR}/build/yamls/clickhouse-operator-install-bundle.yml)
 
@@ -349,8 +352,8 @@ function deliver_antrea {
         ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R ${IPs[$i]}
         copy_image antrea-ubuntu.tar projects.registry.vmware.com/antrea/antrea-ubuntu ${IPs[$i]} latest true
         copy_image flow-aggregator.tar projects.registry.vmware.com/antrea/flow-aggregator ${IPs[$i]} latest  true
-        copy_image theia-clickhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} latest true
-        copy_image theia-metrics-exporter.tar projects.registry.vmware.com/antrea/theia-metrics-exportor  ${IPs[$i]} latest true
+        copy_image theia-clickhouse-operator.tar projects.registry.vmware.com/antrea/theia-clickhouse-operator  ${IPs[$i]} $image_tag true
+        copy_image theia-metrics-exporter.tar projects.registry.vmware.com/antrea/theia-metrics-exportor  ${IPs[$i]} $image_tag true
     done
 
 }
