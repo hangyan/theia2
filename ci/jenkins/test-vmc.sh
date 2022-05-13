@@ -220,6 +220,10 @@ function setup_cluster() {
     sed -i "s/CONTROLVIP/${CONTROL_VIP}/g" ${GIT_CHECKOUT_DIR}/jenkins/out/cluster.yaml
     sed -i "s/CLUSTERNAMESPACE/${CLUSTER}/g" ${GIT_CHECKOUT_DIR}/jenkins/out/namespace.yaml
 
+    echo $DATASTORE
+    echo $VMFOLDERNAME
+
+
     echo "=== network spec value substitution==="
     index="$(($BUILD_NUMBER % 2))"
     cluster_defaults="${WORKDIR}/utils/CLUSTERDEFAULTS-${index}"
