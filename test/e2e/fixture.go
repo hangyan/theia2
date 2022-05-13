@@ -1,3 +1,17 @@
+// Copyright 2022 Antrea Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package e2e
 
 import (
@@ -29,7 +43,7 @@ func ensureAntreaRunning(data *TestData) error {
 }
 
 func teardownTest(tb testing.TB, data *TestData) {
-	// exportLogs(tb, data, "beforeTeardown", true)
+	exportLogs(tb, data, "beforeTeardown", true)
 	if empty, _ := IsDirEmpty(data.logsDirForTestCase); empty {
 		_ = os.Remove(data.logsDirForTestCase)
 	}
@@ -180,6 +194,9 @@ func exportLogs(tb testing.TB, data *TestData, logsSubDir string, writeNodeLogs 
 	// dump the logs for flow-visibility Pods to disk.
 	data.forAllMatchingPodsInNamespace("", flowVisibilityNamespace, writePodLogs)
 
+	// dump the logs for clickhouse operator Pods to disk.
+	data.forAllMatchingPodsInNamespace("app=clickhouse-operator", kubeNamespace, writePodLogs)
+
 	// dump the output of "kubectl describe" for Antrea pods to disk.
 	data.forAllMatchingPodsInNamespace("app=antrea", antreaNamespace, func(nodeName, podName, nsName string) error {
 		w := getPodWriter(nodeName, podName, "describe")
@@ -260,7 +277,7 @@ func setupTest(tb testing.TB) (*TestData, error) {
 	return testData, nil
 }
 
-func setupTestWithIPFIXCollector(tb testing.TB) (*TestData, bool, bool, error) {
+func setupTestForFlowAggregator(tb testing.TB) (*TestData, bool, bool, error) {
 	v4Enabled := clusterInfo.podV4NetworkCIDR != ""
 	v6Enabled := clusterInfo.podV6NetworkCIDR != ""
 	testData, err := setupTest(tb)
@@ -269,12 +286,11 @@ func setupTestWithIPFIXCollector(tb testing.TB) (*TestData, bool, bool, error) {
 	}
 
 	tb.Logf("Deploying ClickHouse")
-	chPodIPs, err := testData.deployFlowVisibilityClickHouse()
+	chSvcIP, err := testData.deployFlowVisibilityClickHouse()
 	if err != nil {
 		return testData, v4Enabled, v6Enabled, err
 	}
-	tb.Logf("ClickHouse Pod running on address: %s", chPodIPs.String())
-
+	tb.Logf("ClickHouse Service created with ClusterIP: %v", chSvcIP)
 	tb.Logf("Applying flow aggregator YAML")
 	if err := testData.deployFlowAggregator(); err != nil {
 		return testData, v4Enabled, v6Enabled, err
