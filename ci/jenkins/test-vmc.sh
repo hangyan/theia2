@@ -220,8 +220,10 @@ function setup_cluster() {
     sed -i "s/CONTROLVIP/${CONTROL_VIP}/g" ${GIT_CHECKOUT_DIR}/jenkins/out/cluster.yaml
     sed -i "s/CLUSTERNAMESPACE/${CLUSTER}/g" ${GIT_CHECKOUT_DIR}/jenkins/out/namespace.yaml
 
-    echo $DATASTORE
-    echo $VMFOLDERNAME
+
+    # replace some common vc settings for all cluster.
+    sed -i "s/DATASTORE/$DATASTORE/g" ${GIT_CHECKOUT_DIR}/jenkins/out/cluster.yaml
+    sed -i "s/VMFOLDERNAME/$VMFOLDERNAME/g" ${GIT_CHECKOUT_DIR}/jenkins/out/cluster.yaml
 
 
     echo "=== network spec value substitution==="
